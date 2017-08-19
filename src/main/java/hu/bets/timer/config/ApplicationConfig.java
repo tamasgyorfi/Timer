@@ -1,5 +1,6 @@
 package hu.bets.timer.config;
 
+import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.timer.MessageSender;
 import hu.bets.timer.TimeTickProvider;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -17,7 +18,7 @@ public class ApplicationConfig {
     @Bean
     public Properties properties() {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "steamer-01.srvs.cloudkafka.com:9093,steamer-03.srvs.cloudkafka.com:9093,steamer-02.srvs.cloudkafka.com:9093");
+        properties.put("bootstrap.servers", EnvironmentVarResolver.getEnvVar("CLOUDKARAFKA_BROKERS"));
         properties.put("request.required.acks", "1");
         properties.put("key.serializer", StringSerializer.class.getName());
         properties.put("value.serializer", StringSerializer.class.getName());
