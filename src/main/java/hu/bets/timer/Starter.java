@@ -19,11 +19,8 @@ public class Starter {
     public static void main(String[] args) {
         Starter starter = new Starter();
 
-        starter.startServer(context.getBean(Server.class));
         context.getBean(TimeTickProvider.class).startTimeTickProvider();
-        while (true) {
-
-        }
+        starter.startServer(context.getBean(Server.class));
     }
 
     private void startServer(Server server) {

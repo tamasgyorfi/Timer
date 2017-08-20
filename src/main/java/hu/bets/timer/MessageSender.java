@@ -1,17 +1,40 @@
 package hu.bets.timer;
 
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 public class MessageSender {
 
-    private Producer<String, String> producer;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageSender.class);
+    private static final String TIME_CHANNEL = "time_channel";
 
-    public MessageSender(Producer<String, String> producer) {
-        this.producer = producer;
+    private PubNub pubNub;
+
+    public MessageSender(PubNub pubNub) {
+        this.pubNub = pubNub;
     }
 
     public void sendMessage(String time) {
-        producer.send(new ProducerRecord<String, String>("61o6-timer", time));
+        pubNub.publish()
+                .message(Arrays.asList("timeTick", time))
+                .channel(TIME_CHANNEL)
+                .shouldStore(true)
+                .usePOST(true)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        if (status.isError()) {
+                            LOGGER.info("Error happened while publishing: {}", status.toString());
+                        } else {
+                            LOGGER.info("Publish worked! timetoken: {}", result.getTimetoken());
+                        }
+                    }
+                });
     }
 }

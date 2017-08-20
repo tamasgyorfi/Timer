@@ -22,11 +22,16 @@ public class TimeTickProvider {
     }
 
     public void startTimeTickProvider() {
-        executor.scheduleAtFixedRate(() -> {
+        executor.scheduleAtFixedRate(new TickTask(), 0, 5, TimeUnit.MINUTES);
+    }
+
+    private class TickTask implements Runnable {
+        @Override
+        public void run() {
             String time = ZonedDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ISO_DATE_TIME);
             LOGGER.info("Sending time tick: {}", time);
             messageSender.sendMessage(time);
             LOGGER.info("Message successfully sent.");
-        }, 0, 5, TimeUnit.MINUTES);
+        }
     }
 }
